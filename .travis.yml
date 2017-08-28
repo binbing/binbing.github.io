@@ -23,4 +23,4 @@ branches:
     - hexo
 env:
  global:
-   - GH_REF: git@github.com:binbing/binbing.github.io.git
+   - GH_REF: https://github.com/binbing/binbing.github.io.git
