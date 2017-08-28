@@ -5,14 +5,6 @@ node_js: stable
 install:
   - npm install
 
-<<<<<<< HEAD
-#before_script:
-=======
-
-#before_script:
- # - npm install -g gulp
-
->>>>>>> 3843b3c2c515ca7dd9540e6af929de19d8ba6f36
 script:
   - hexo g
 
