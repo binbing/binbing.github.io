@@ -1,3 +1,7 @@
+---
+title: Spring Boot Admin 集成自定义监控告警
+date: 2018-05-19 18:36:45
+---
 # Spring Boot Admin 集成自定义监控告警
 ## 前言
 [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin) 是一个社区项目，可以用来监控和管理 Spring Boot 应用并且提供 UI，详细可以参考 [官方文档](http://codecentric.github.io/spring-boot-admin/1.5.7/#getting-started)。
