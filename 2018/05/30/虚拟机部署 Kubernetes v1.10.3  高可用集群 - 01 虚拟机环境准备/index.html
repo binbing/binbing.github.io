@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="虚拟机环境准备使用 Vagrant 管理虚拟机集群，下边是安装步骤。 文件准备目录结构如下： 1234├── setup.sh├── Vagrantfile└── yum    └── CentOS7-Base-163.repo Vagrantfile： 1234567891011121314151617181920212223242526def set_vbox(vb, config)  vb.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备">
+<meta property="og:url" content="xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/index.html">
+<meta property="og:site_name" content="萧非瑟">
+<meta property="og:description" content="虚拟机环境准备使用 Vagrant 管理虚拟机集群，下边是安装步骤。 文件准备目录结构如下： 1234├── setup.sh├── Vagrantfile└── yum    └── CentOS7-Base-163.repo Vagrantfile： 1234567891011121314151617181920212223242526def set_vbox(vb, config)  vb.">
+<meta property="og:updated_time" content="2018-08-20T10:12:03.591Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备">
+<meta name="twitter:description" content="虚拟机环境准备使用 Vagrant 管理虚拟机集群，下边是安装步骤。 文件准备目录结构如下： 1234├── setup.sh├── Vagrantfile└── yum    └── CentOS7-Base-163.repo Vagrantfile： 1234567891011121314151617181920212223242526def set_vbox(vb, config)  vb.">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 02 生成证书/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/05/19/spring-boot-admin-dingtalk/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+    </span>
+    <br/>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#虚拟机环境准备"><span class="toc-number">1.</span> <span class="toc-text">虚拟机环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件准备"><span class="toc-number">1.1.</span> <span class="toc-text">文件准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动集群"><span class="toc-number">1.2.</span> <span class="toc-text">启动集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点信息"><span class="toc-number">1.3.</span> <span class="toc-text">节点信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#准备工作"><span class="toc-number">1.4.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#备注"><span class="toc-number">1.5.</span> <span class="toc-text">备注</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">萧非瑟</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-05-30T17:53:05.000Z" itemprop="datePublished">2018-05-30</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="虚拟机环境准备"><a href="#虚拟机环境准备" class="headerlink" title="虚拟机环境准备"></a>虚拟机环境准备</h2><p>使用 Vagrant 管理虚拟机集群，下边是安装步骤。</p>
+<h3 id="文件准备"><a href="#文件准备" class="headerlink" title="文件准备"></a>文件准备</h3><p>目录结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">├── setup.sh</div><div class="line">├── Vagrantfile</div><div class="line">└── yum</div><div class="line">    └── CentOS7-Base-163.repo</div></pre></td></tr></table></figure>
+<p>Vagrantfile：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">def set_vbox(vb, config)</div><div class="line">  vb.gui = false</div><div class="line">  vb.memory = 1024</div><div class="line">  vb.cpus = 1</div><div class="line">end</div><div class="line"></div><div class="line">Vagrant.configure(&quot;2&quot;) do |config|</div><div class="line">  config.vm.box_check_update = false</div><div class="line">  # 设置虚拟机的 Box</div><div class="line">  config.vm.box = &quot;centos/7&quot;</div><div class="line">  (1..6).each do |i|</div><div class="line">    name = (i &lt;= 3) ? &quot;kube-m&quot; : &quot;kube-n&quot;</div><div class="line">    id = (i &lt;= 3) ? i : i - 3</div><div class="line">    config.vm.define &quot;#&#123;name&#125;#&#123;id&#125;&quot; do |n|</div><div class="line">      n.vm.hostname = &quot;#&#123;name&#125;#&#123;id&#125;&quot;</div><div class="line">      ip_addr = &quot;192.168.56.#&#123;i + 10&#125;&quot;</div><div class="line">      n.vm.network :private_network, ip: &quot;#&#123;ip_addr&#125;&quot;, auto_config: true</div><div class="line">      n.vm.provider :virtualbox do |vb, override|</div><div class="line">        vb.name = &quot;#&#123;n.vm.hostname&#125;&quot;</div><div class="line">        set_vbox(vb, override)</div><div class="line">      end</div><div class="line">    end</div><div class="line">  end</div><div class="line">  # 使用shell脚本进行软件安装和配置</div><div class="line">  config.vm.provision &quot;shell&quot;, path: &quot;./setup.sh&quot;</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>setup.sh：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line"># Copy hosts info</div><div class="line">cat &lt;&lt;EOF &gt; /etc/hosts</div><div class="line">127.0.0.1	localhost</div><div class="line">127.0.1.1	vagrant.vm	vagrant</div><div class="line">192.168.56.11 kube-m1</div><div class="line">192.168.56.12 kube-m2</div><div class="line">192.168.56.13 kube-m3</div><div class="line">192.168.56.14 kube-n1</div><div class="line">192.168.56.15 kube-n2</div><div class="line">192.168.56.16 kube-n3</div><div class="line"># The following lines are desirable for IPv6 capable hosts</div><div class="line">::1     localhost ip6-localhost ip6-loopback</div><div class="line">ff02::1 ip6-allnodes</div><div class="line">ff02::2 ip6-allrouters</div><div class="line">EOF</div><div class="line"></div><div class="line"># change time zone</div><div class="line">cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</div><div class="line">timedatectl set-timezone Asia/Shanghai</div><div class="line"># set yum mirror</div><div class="line">rm /etc/yum.repos.d/CentOS-Base.repo</div><div class="line">cp /vagrant/yum/*.* /etc/yum.repos.d/</div><div class="line">mv /etc/yum.repos.d/CentOS7-Base-163.repo /etc/yum.repos.d/CentOS-Base.repo</div><div class="line"># install  kmod and ceph-common for rook</div><div class="line">yum install -y wget curl conntrack-tools vim net-tools socat ntp kmod ceph-common</div><div class="line"># install docker</div><div class="line">groupadd docker</div><div class="line">usermod -aG docker vagrant</div><div class="line">rm -rf ~/.docker/</div><div class="line">yum install -y docker.x86_64</div><div class="line">cat &gt; /etc/docker/daemon.json &lt;&lt;EOF</div><div class="line">&#123;</div><div class="line">  &quot;registry-mirrors&quot; : [&quot;https://k64bpq6l.mirror.aliyuncs.com&quot;]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line"></div><div class="line"># Download kubelet and kubectl</div><div class="line">KUBE_URL=&quot;https://storage.googleapis.com/kubernetes-release/release/v1.10.3/bin/linux/amd64&quot;</div><div class="line">wget &quot;$&#123;KUBE_URL&#125;/kubelet&quot; -O /usr/local/bin/kubelet</div><div class="line">chmod +x /usr/local/bin/kubelet</div><div class="line"></div><div class="line">if [[ $&#123;HOSTNAME&#125; =~ m ]]; then</div><div class="line">  wget &quot;$&#123;KUBE_URL&#125;/kubectl&quot; -O /usr/local/bin/kubectl</div><div class="line">  chmod +x /usr/local/bin/kubectl</div><div class="line">fi</div><div class="line"></div><div class="line"># Setup system vars</div><div class="line">cat &lt;&lt;EOF &gt; /etc/sysctl.d/k8s.conf</div><div class="line">net.ipv4.ip_forward = 1</div><div class="line">net.bridge.bridge-nf-call-ip6tables = 1</div><div class="line">net.bridge.bridge-nf-call-iptables = 1</div><div class="line">EOF</div><div class="line"></div><div class="line">sysctl -p /etc/sysctl.d/k8s.conf</div><div class="line"></div><div class="line">swapoff -a &amp;&amp; sysctl -w vm.swappiness=0</div><div class="line">sed &apos;/vagrant--vg-swap_1/d&apos; -i  /etc/fstab</div></pre></td></tr></table></figure>
+<p>CentOS7-Base-163.repo ：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">[base]</div><div class="line">name=CentOS-$releasever - Base - 163.com</div><div class="line">#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=os</div><div class="line">baseurl=http://mirrors.163.com/centos/$releasever/os/$basearch/</div><div class="line">gpgcheck=1</div><div class="line">gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7</div><div class="line"></div><div class="line">#released updates</div><div class="line">[updates]</div><div class="line">name=CentOS-$releasever - Updates - 163.com</div><div class="line">#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=updates</div><div class="line">baseurl=http://mirrors.163.com/centos/$releasever/updates/$basearch/</div><div class="line">gpgcheck=1</div><div class="line">gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7</div><div class="line"></div><div class="line">#additional packages that may be useful</div><div class="line">[extras]</div><div class="line">name=CentOS-$releasever - Extras - 163.com</div><div class="line">#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=extras</div><div class="line">baseurl=http://mirrors.163.com/centos/$releasever/extras/$basearch/</div><div class="line">gpgcheck=1</div><div class="line">gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7</div><div class="line"></div><div class="line">#additional packages that extend functionality of existing packages</div><div class="line">[centosplus]</div><div class="line">name=CentOS-$releasever - Plus - 163.com</div><div class="line">baseurl=http://mirrors.163.com/centos/$releasever/centosplus/$basearch/</div><div class="line">gpgcheck=1</div><div class="line">enabled=0</div><div class="line">gpgkey=http://mirrors.163.com/centos/RPM-GPG-KEY-CentOS-7</div></pre></td></tr></table></figure>
+<h3 id="启动集群"><a href="#启动集群" class="headerlink" title="启动集群"></a>启动集群</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ # 下载 CentOS7 box 镜像</div><div class="line">$ wget -c http://cloud.centos.org/centos/7/vagrant/x86_64/images/CentOS-7-x86_64-Vagrant-1801_02.VirtualBox.box</div><div class="line">$ vagrant box add CentOS-7-x86_64-Vagrant-1801_02.VirtualBox.box --name centos/7</div><div class="line">$ # 启动集群</div><div class="line">$ vagrant up</div></pre></td></tr></table></figure>
+<h3 id="节点信息"><a href="#节点信息" class="headerlink" title="节点信息"></a>节点信息</h3><table>
+<thead>
+<tr>
+<th>IP Address</th>
+<th style="text-align:center">Hostname </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.56.11</td>
+<td style="text-align:center">kube-m1</td>
+</tr>
+<tr>
+<td>192.168.56.12</td>
+<td style="text-align:center">kube-m2</td>
+</tr>
+<tr>
+<td>192.168.56.13</td>
+<td style="text-align:center">kube-m3</td>
+</tr>
+<tr>
+<td>192.168.56.14</td>
+<td style="text-align:center">kube-n1</td>
+</tr>
+<tr>
+<td>192.168.56.15</td>
+<td style="text-align:center">kube-n2</td>
+</tr>
+<tr>
+<td>192.168.56.16</td>
+<td style="text-align:center">kube-n3</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>m 为 Master 节点，n 为 Node 节点。</li>
+<li>主要操作将在 “kube-m1” 主机上进行，请事先配置好 m1 主机免密登录其他主机。</li>
+<li>所有命名默认以 root 用户执行。</li>
+<li><p>关闭所有节点的 SELinux </p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/selinux/config</div><div class="line">SELINUX=disabled</div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<p>  注意：如果不关闭 SELinux k8s 挂载目录会报 <code>Permission denied</code> 错误。</p>
+</li>
+</ul>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>一些需要初始化的东西已经写在 setup.sh 中，具体如下：</p>
+<ul>
+<li>设置 /etc/hosts 解析到集群所有主机。</li>
+<li>所有节点设置时区、软件源等设置。</li>
+<li>所有节点安装 Docker 并设置加速器。</li>
+<li>所有节点安装 kubectl。</li>
+</ul>
+<h3 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h3><p><em>1. 由于资源限制，Etcd 部署在三台 k8s Master 节点上，宿主机资源充足的话可以部署在三台单独的主机上。</em></p>
+<p><em>2. 免密登录只需要将宿主机公钥写入到 m1 主机的 <code>~/.ssh/authorized_keys</code> 文件中，然后在 m1 主机执行 <code>ssh-keygen</code> 生成密钥对，并将公钥依次写入到其他需要登录主机的 <code>~/.ssh/authorized_keys</code> 文件中。</em></p>
+<p>示例: </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># 宿主机执行</div><div class="line">$ vagrant ssh kube-m2</div><div class="line"># 进入 m2 主机后 su 到 root 用户，密码 vagrant</div><div class="line">[vagrant@kube-n1 ~]$ su</div><div class="line">Password:</div><div class="line"># 将 m1 主机的公钥写入 m2 完成免密登录配置，依次配置其他主机</div><div class="line">[root@kube-n1 vagrant]# mkdir ~/.ssh &amp;&amp; echo &quot;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNEj6obDW/eERX04E22ucDGwUTQ6C8DSL1Dqun/7VuQJei6lzdWBBDKy6AJEPh/w51Po9vlqZCiso1+N/vwLzakSHqYh685L2tsXTpQza16N624sP7lt201TwUlKJ9tlQRzahtX833PCtvSSwv8T7EsZVwUN4zz7eA+To+hPzzVEBlU/wMgoHMWlGLG/dNGqUl3mJeBFJ7NRbC1ePzZYXUxhyFY9N36GcOoI+cJXroApecKMK5fSZbXyYDFRZ8Mf7EMkRQkXx5BasGRTAzKBkJ1OW2JBP17VdJqmJKOBHDnetwyH0zcS5C6/vWgiJspiJJu9Cw2I5/aZ6uij3g0tW9 root@kube-m1&quot; &gt;&gt; ~/.ssh/authorized_keys</div></pre></td></tr></table></figure>
+<p><em>3. SELinux 需要手动关闭。</em></p>
+<p><em>4. 关于镜像被墙的问题参考 『虚拟机部署 Kubernetes v1.10.3 高可用集群 - 05 总结』 中的描述。</em></p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#虚拟机环境准备"><span class="toc-number">1.</span> <span class="toc-text">虚拟机环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件准备"><span class="toc-number">1.1.</span> <span class="toc-text">文件准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动集群"><span class="toc-number">1.2.</span> <span class="toc-text">启动集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点信息"><span class="toc-number">1.3.</span> <span class="toc-text">节点信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#准备工作"><span class="toc-number">1.4.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#备注"><span class="toc-number">1.5.</span> <span class="toc-text">备注</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&text=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&is_video=false&description=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备&body=Check out this article: xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/&name=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 萧非瑟 <a href="http://www.miitbeian.gov.cn">粤ICP备17119417号-1</a>
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-86660611-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+<!-- Disqus Comments -->
+
+

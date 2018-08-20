@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="总结本文的大部分思路参考了 『Kubernetes v1.10.x HA 全手動苦工安裝教學(TL;DR)』 这篇文章。 不过，虽然 Kairen 同志已经写得很详细了，但是实践起来还是有不少问题的，我在他的基础上根据自己的实践过程写了这篇文档。 可能会出现的问题 apiserver 会一直报错：  1x509.go:172] x509: subject with cn=system:kube-c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结">
+<meta property="og:url" content="xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/index.html">
+<meta property="og:site_name" content="萧非瑟">
+<meta property="og:description" content="总结本文的大部分思路参考了 『Kubernetes v1.10.x HA 全手動苦工安裝教學(TL;DR)』 这篇文章。 不过，虽然 Kairen 同志已经写得很详细了，但是实践起来还是有不少问题的，我在他的基础上根据自己的实践过程写了这篇文档。 可能会出现的问题 apiserver 会一直报错：  1x509.go:172] x509: subject with cn=system:kube-c">
+<meta property="og:updated_time" content="2018-08-20T10:12:03.591Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结">
+<meta name="twitter:description" content="总结本文的大部分思路参考了 『Kubernetes v1.10.x HA 全手動苦工安裝教學(TL;DR)』 这篇文章。 不过，虽然 Kairen 同志已经写得很详细了，但是实践起来还是有不少问题的，我在他的基础上根据自己的实践过程写了这篇文档。 可能会出现的问题 apiserver 会一直报错：  1x509.go:172] x509: subject with cn=system:kube-c">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/08/20/jenkins-kubernetes-plugin-gradle/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 04 部署 Node/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+    </span>
+    <br/>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">1.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#可能会出现的问题"><span class="toc-number">1.1.</span> <span class="toc-text">可能会出现的问题</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">萧非瑟</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-05-30T17:53:48.000Z" itemprop="datePublished">2018-05-30</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文的大部分思路参考了 <a href="https://kairen.github.io/2018/04/05/kubernetes/deploy/manual-v1.10/" target="_blank" rel="external">『Kubernetes v1.10.x HA 全手動苦工安裝教學(TL;DR)』</a> 这篇文章。</p>
+<p>不过，虽然 Kairen 同志已经写得很详细了，但是实践起来还是有不少问题的，我在他的基础上根据自己的实践过程写了这篇文档。</p>
+<h3 id="可能会出现的问题"><a href="#可能会出现的问题" class="headerlink" title="可能会出现的问题"></a>可能会出现的问题</h3><ol>
+<li><p>apiserver 会一直报错：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">x509.go:172] x509: subject with cn=system:kube-controller-manager is not in the allowed list: [aggregator]</div></pre></td></tr></table></figure>
+<p> 一开始以为是证书有问题，但是查了很久也没发现问题所在，可以忽略此错误，暂时未发现对集群有什么影响。</p>
+</li>
+<li><p>pod 无法启动，出现 <code>Permission denied</code> 之类的错误。</p>
+<p> 是由于主机未关闭 SELinux 造成的，参考『虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备』中的步骤关闭 SELinux 即可。</p>
+</li>
+<li><p>无法下载镜像问题（墙）。</p>
+<p> 可以使用 <a href="https://github.com/shadowsocks/shadowsocks-windows" target="_blank" rel="external">shadowsocks</a> + <a href="http://www.proxifier.com/" target="_blank" rel="external">Proxifier</a> 代理解决；或者使用阿里云仓库里的镜像，脚本如下：</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ ALI_REP=&quot;registry.cn-hangzhou.aliyuncs.com/google_containers&quot;</div><div class="line">$ GCR=&quot;gcr.io/google_containers&quot;</div><div class="line">$ K8S_GCR=&quot;k8s.gcr.io&quot;</div><div class="line"></div><div class="line">$ for IMAGE in kube-controller-manager-amd64:v1.10.3 kube-apiserver-amd64:v1.10.3 kube-scheduler-amd64:v1.10.3 etcd-amd64:3.1.13; do</div><div class="line">    echo &quot;--- $IMAGE ---&quot;</div><div class="line">    docker pull $ALI_REP/$IMAGE</div><div class="line">    docker tag $ALI_REP/$IMAGE $GCR/$IMAGE</div><div class="line">    docker rmi $ALI_REP/$IMAGE</div><div class="line">done</div><div class="line"></div><div class="line">$ for IMAGE in kube-proxy-amd64:v1.10.3 pause-amd64:3.1; do</div><div class="line">    echo &quot;--- $IMAGE ---&quot;</div><div class="line">    docker pull $ALI_REP/$IMAGE</div><div class="line">    docker tag $ALI_REP/$IMAGE $K8S_GCR/$IMAGE</div><div class="line">    docker rmi $ALI_REP/$IMAGE</div><div class="line">done</div></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">1.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#可能会出现的问题"><span class="toc-number">1.1.</span> <span class="toc-text">可能会出现的问题</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&text=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&is_video=false&description=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结&body=Check out this article: xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&title=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=xiaofeise.com/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结/&name=虚拟机部署 Kubernetes v1.10.3  高可用集群 - 05 总结&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 萧非瑟 <a href="http://www.miitbeian.gov.cn">粤ICP备17119417号-1</a>
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-86660611-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+<!-- Disqus Comments -->
+
+

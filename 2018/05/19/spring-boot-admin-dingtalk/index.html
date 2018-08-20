@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Spring Boot Admin 集成自定义监控告警前言Spring Boot Admin 是一个社区项目，可以用来监控和管理 Spring Boot 应用并且提供 UI，详细可以参考 官方文档。 Spring Boot Admin 本身提供监控告警功能，但是默认只提供了 Hipchat、Slack 等国外流行的通讯软件的集成，虽然也有邮件通知，不过考虑到使用体检决定二次开发增加 钉钉 通知。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot Admin 集成自定义监控告警">
+<meta property="og:url" content="xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/index.html">
+<meta property="og:site_name" content="萧非瑟">
+<meta property="og:description" content="Spring Boot Admin 集成自定义监控告警前言Spring Boot Admin 是一个社区项目，可以用来监控和管理 Spring Boot 应用并且提供 UI，详细可以参考 官方文档。 Spring Boot Admin 本身提供监控告警功能，但是默认只提供了 Hipchat、Slack 等国外流行的通讯软件的集成，虽然也有邮件通知，不过考虑到使用体检决定二次开发增加 钉钉 通知。">
+<meta property="og:updated_time" content="2018-08-20T10:12:03.591Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring Boot Admin 集成自定义监控告警">
+<meta name="twitter:description" content="Spring Boot Admin 集成自定义监控告警前言Spring Boot Admin 是一个社区项目，可以用来监控和管理 Spring Boot 应用并且提供 UI，详细可以参考 官方文档。 Spring Boot Admin 本身提供监控告警功能，但是默认只提供了 Hipchat、Slack 等国外流行的通讯软件的集成，虽然也有邮件通知，不过考虑到使用体检决定二次开发增加 钉钉 通知。">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Spring Boot Admin 集成自定义监控告警</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/05/30/虚拟机部署 Kubernetes v1.10.3  高可用集群 - 01 虚拟机环境准备/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/09/06/about-code/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+    </span>
+    <br/>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Boot-Admin-集成自定义监控告警"><span class="toc-number">1.</span> <span class="toc-text">Spring Boot Admin 集成自定义监控告警</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.2.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考自带通知源码"><span class="toc-number">1.3.</span> <span class="toc-text">参考自带通知源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现钉钉通知"><span class="toc-number">1.4.</span> <span class="toc-text">实现钉钉通知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#增加钉钉通知自动配置"><span class="toc-number">1.5.</span> <span class="toc-text">增加钉钉通知自动配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#增加相关配置"><span class="toc-number">1.6.</span> <span class="toc-text">增加相关配置</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Spring Boot Admin 集成自定义监控告警
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">萧非瑟</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-05-19T18:36:45.000Z" itemprop="datePublished">2018-05-19</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="Spring-Boot-Admin-集成自定义监控告警"><a href="#Spring-Boot-Admin-集成自定义监控告警" class="headerlink" title="Spring Boot Admin 集成自定义监控告警"></a>Spring Boot Admin 集成自定义监控告警</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><a href="https://github.com/codecentric/spring-boot-admin" target="_blank" rel="external">Spring Boot Admin</a> 是一个社区项目，可以用来监控和管理 Spring Boot 应用并且提供 UI，详细可以参考 <a href="http://codecentric.github.io/spring-boot-admin/1.5.7/#getting-started" target="_blank" rel="external">官方文档</a>。</p>
+<p>Spring Boot Admin 本身提供监控告警功能，但是默认只提供了 Hipchat、Slack 等国外流行的通讯软件的集成，虽然也有邮件通知，不过考虑到使用体检决定二次开发增加 <a href="https://www.dingtalk.com" target="_blank" rel="external">钉钉</a> 通知。</p>
+<p>本文基于 Spring Boot Admin 目前最新版 1.5.7。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ol>
+<li>Spring Boot Admin Server，参考文档 <a href="http://codecentric.github.io/spring-boot-admin/1.5.7/#getting-started" target="_blank" rel="external">http://codecentric.github.io/spring-boot-admin/1.5.7/#getting-started</a></li>
+<li>钉钉自定义机器人，参考文档 <a href="https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.64Ddtm&amp;treeId=257&amp;articleId=105735&amp;docType=1" target="_blank" rel="external">https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.64Ddtm&amp;treeId=257&amp;articleId=105735&amp;docType=1</a></li>
+</ol>
+<h2 id="参考自带通知源码"><a href="#参考自带通知源码" class="headerlink" title="参考自带通知源码"></a>参考自带通知源码</h2><p>由于官方文档上并没有增加自定义通知相关的文档，所以我们参考一下 Slack 通知源码 <code>SlackNotifier.java</code>。</p>
+<p>源码比较长就不全部贴了，看一下关键部分：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public class SlackNotifier extends AbstractStatusChangeNotifier</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">protected void doNotify(ClientApplicationEvent event) throws Exception &#123;</div><div class="line">    this.restTemplate.postForEntity(this.webhookUrl, this.createMessage(event), Void.class);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到流程还是比较简单的，继承 AbstractStatusChangeNotifier 类，实现了 doNotify 方法，当应用状态改变的时候会回调 doNotify 方法。</p>
+<h2 id="实现钉钉通知"><a href="#实现钉钉通知" class="headerlink" title="实现钉钉通知"></a>实现钉钉通知</h2><p>DingTalkNotifier.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line">public class DingTalkNotifier extends AbstractStatusChangeNotifier &#123;</div><div class="line">    private final SpelExpressionParser parser = new SpelExpressionParser();</div><div class="line">    private RestTemplate restTemplate = new RestTemplate();</div><div class="line">    private String webhookToken;</div><div class="line">    private String atMobiles;</div><div class="line">    private String msgtype = &quot;markdown&quot;;</div><div class="line">    private String title = &quot;服务告警&quot;;</div><div class="line">    private Expression message;</div><div class="line"></div><div class="line">    public DingTalkNotifier() &#123;</div><div class="line">        this.message = this.parser.parseExpression(&quot;**#&#123;application.name&#125;** (#&#123;application.id&#125;) is **#&#123;to.status&#125;**&quot;, ParserContext.TEMPLATE_EXPRESSION);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    protected void doNotify(ClientApplicationEvent event) &#123;</div><div class="line">        this.restTemplate.postForEntity(this.webhookToken, this.createMessage(event), Void.class);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private HttpEntity&lt;Map&lt;String, Object&gt;&gt; createMessage(ClientApplicationEvent event) &#123;</div><div class="line">        Map&lt;String, Object&gt; messageJson = new HashMap&lt;&gt;();</div><div class="line">        HashMap&lt;String, String&gt; params = new HashMap&lt;&gt;();</div><div class="line">        params.put(&quot;text&quot;, this.getMessage(event));</div><div class="line">        params.put(&quot;title&quot;, this.title);</div><div class="line">        messageJson.put(&quot;dinggroup&quot;, this.dingGroup);</div><div class="line">        messageJson.put(&quot;atMobiles&quot;, this.atMobiles);</div><div class="line">        messageJson.put(&quot;msgtype&quot;, this.msgtype);</div><div class="line">        messageJson.put(this.msgtype, params);</div><div class="line">        HttpHeaders headers = new HttpHeaders();</div><div class="line">        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);</div><div class="line">        return new HttpEntity&lt;&gt;(messageJson, headers);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private String getAtMobilesString(String s) &#123;</div><div class="line">        StringBuilder atMobiles = new StringBuilder();</div><div class="line">        String[] mobiles = s.split(&quot;,&quot;);</div><div class="line">        for (String mobile : mobiles) &#123;</div><div class="line">            atMobiles.append(&quot;@&quot;).append(mobile);</div><div class="line">        &#125;</div><div class="line">        return atMobiles.toString();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private String getMessage(ClientApplicationEvent event) &#123;</div><div class="line">        return this.atMobiles == null ? this.message.getValue(event, String.class) : this.message.getValue(event, String.class) + &quot;\n &gt;&quot; + this.getAtMobilesString(this.atMobiles);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void setRestTemplate(RestTemplate restTemplate) &#123;</div><div class="line">        this.restTemplate = restTemplate;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public String getWebhookToken() &#123;</div><div class="line">        return webhookToken;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void setWebhookToken(String webhookToken) &#123;</div><div class="line">        this.webhookToken = webhookToken;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public String getAtMobiles() &#123;</div><div class="line">        return atMobiles;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void setAtMobiles(String atMobiles) &#123;</div><div class="line">        this.atMobiles = atMobiles;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public String getMsgtype() &#123;</div><div class="line">        return msgtype;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void setMsgtype(String msgtype) &#123;</div><div class="line">        this.msgtype = msgtype;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Expression getMessage() &#123;</div><div class="line">        return message;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void setMessage(String message) &#123;</div><div class="line">        this.message = this.parser.parseExpression(message, ParserContext.TEMPLATE_EXPRESSION);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public String getTitle() &#123;</div><div class="line">        return title;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void setTitle(String title) &#123;</div><div class="line">        this.title = title;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>代码逻辑也比较简单就不一一解释了。</p>
+<h2 id="增加钉钉通知自动配置"><a href="#增加钉钉通知自动配置" class="headerlink" title="增加钉钉通知自动配置"></a>增加钉钉通知自动配置</h2><p>DingTalkNotifierConfiguration.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">@Configuration</div><div class="line">@ConditionalOnProperty(</div><div class="line">        prefix = &quot;spring.boot.admin.notify.dingtalk&quot;,</div><div class="line">        name = &#123;&quot;webhook-token&quot;&#125;</div><div class="line">)</div><div class="line">@AutoConfigureBefore(&#123;NotifierConfiguration.NotifierListenerConfiguration.class, NotifierConfiguration.CompositeNotifierConfiguration.class&#125;)</div><div class="line">public class DingTalkNotifierConfiguration &#123;</div><div class="line">    public DingTalkNotifierConfiguration() &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Bean</div><div class="line">    @ConditionalOnMissingBean</div><div class="line">    @ConfigurationProperties(prefix = &quot;spring.boot.admin.notify.dingtalk&quot;)</div><div class="line">    public DingTalkNotifier dingTalkNotifier() &#123;</div><div class="line">        return new DingTalkNotifier();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>大概解释下此配置类的主要作用：</p>
+<ol>
+<li>当配置了 <code>spring.boot.admin.notify.dingtalk.webhook-token</code> 的时候此配置类生效。</li>
+<li>将 <code>spring.boot.admin.notify.dingtalk</code> 下的配置注入到 <code>DingTalkNotifier</code> 生成的 Bean 中。</li>
+<li>指定了此配置配生效的时间以及 Bean 生效的条件。</li>
+</ol>
+<p><em>关键在于类和 Bean 上的几个注解，但这不是本文重点不展开说了。</em></p>
+<h2 id="增加相关配置"><a href="#增加相关配置" class="headerlink" title="增加相关配置"></a>增加相关配置</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">spring:</div><div class="line">  boot:</div><div class="line">    admin:</div><div class="line">      notify:</div><div class="line">        dingtalk:</div><div class="line">          enabled: true</div><div class="line">          webhook-token: https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxx</div></pre></td></tr></table></figure>
+<p>然后当项目状态改变的时候就可以在钉钉收到消息了。</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Boot-Admin-集成自定义监控告警"><span class="toc-number">1.</span> <span class="toc-text">Spring Boot Admin 集成自定义监控告警</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.2.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考自带通知源码"><span class="toc-number">1.3.</span> <span class="toc-text">参考自带通知源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现钉钉通知"><span class="toc-number">1.4.</span> <span class="toc-text">实现钉钉通知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#增加钉钉通知自动配置"><span class="toc-number">1.5.</span> <span class="toc-text">增加钉钉通知自动配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#增加相关配置"><span class="toc-number">1.6.</span> <span class="toc-text">增加相关配置</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&text=Spring Boot Admin 集成自定义监控告警"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&title=Spring Boot Admin 集成自定义监控告警"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&is_video=false&description=Spring Boot Admin 集成自定义监控告警"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spring Boot Admin 集成自定义监控告警&body=Check out this article: xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&title=Spring Boot Admin 集成自定义监控告警"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&title=Spring Boot Admin 集成自定义监控告警"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&title=Spring Boot Admin 集成自定义监控告警"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&title=Spring Boot Admin 集成自定义监控告警"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=xiaofeise.com/2018/05/19/spring-boot-admin-dingtalk/&name=Spring Boot Admin 集成自定义监控告警&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 萧非瑟 <a href="http://www.miitbeian.gov.cn">粤ICP备17119417号-1</a>
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-86660611-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+<!-- Disqus Comments -->
+
+
